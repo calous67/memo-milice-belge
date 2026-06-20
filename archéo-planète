@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArchéoPlanète · Gestion des sites antiques</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #f2efe6;
+            color: #1e2b2f;
+        }
+
+        /* ========== BANNIÈRE ========== */
+        .hero-banner {
+            background: linear-gradient(135deg, #1a2a2a 0%, #2d4a3e 40%, #4a6b5a 100%);
+            padding: 2.5rem 2rem 2rem 2rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #b9a68c;
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .hero-text h1 {
+            font-size: 3.2rem;
+            font-weight: 300;
+            color: #fcf9f2;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .hero-text h1 i {
+            color: #d4c5a9;
+            margin-right: 0.5rem;
+        }
+        .hero-text .subtitle {
+            font-size: 1.1rem;
+            color: #c4d4c9;
+            margin-top: 0.3rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        .hero-text .subtitle span {
+            background: rgba(255,255,255,0.08);
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 0.3rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px);
+            padding: 0.8rem 2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .hero-stats .stat-item {
+            color: #fcf9f2;
+            text-align: center;
+        }
+        .hero-stats .stat-item .number {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #d4c5a9;
+            display: block;
+        }
+        .hero-stats .stat-item .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+        .hero-banner .scroll-indicator {
+            position: absolute;
+            bottom: 0.8rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            animation: bounce 2s infinite;
+            z-index: 2;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-6px); }
+        }
+
+        /* ========== RESTE DU STYLE ========== */
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #e5dccc;
+        }
+        .header-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #e3d8c8;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #2b3f3f;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.2s;
+            border: 1px solid #cdbfab;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            background: #d0c2ae;
+            transform: scale(1.02);
+        }
+        .btn-primary {
+            background: #8a7a66;
+            color: #fcf9f2;
+            border-color: #6d5f4e;
+        }
+        .btn-primary:hover {
+            background: #6d5f4e;
+        }
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+            border-color: #a93226;
+        }
+        .btn-danger:hover {
+            background: #a93226;
+        }
+        .btn-success {
+            background: #2d7d6f;
+            color: white;
+            border-color: #1f6357;
+        }
+        .btn-success:hover {
+            background: #1f6357;
+        }
+        .btn-gold {
+            background: #b9a68c;
+            color: #1a2a2a;
+            border-color: #9a8a72;
+        }
+        .btn-gold:hover {
+            background: #a8987e;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #b9a68c;
+        }
+        .btn-outline:hover {
+            background: #e3d8c8;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #ddd2c0;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #5d6d67;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+            border-radius: 12px 12px 0 0;
+        }
+        .tab-btn:hover {
+            background: #e8dfd2;
+            color: #2b3f3f;
+        }
+        .tab-btn.active {
+            color: #2b3f3f;
+            border-bottom-color: #8a7a66;
+            background: #fcf9f2;
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+            background: #fcf9f2;
+            border-radius: 0 20px 20px 20px;
+            padding: 1.8rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            border: 1px solid #e5dccc;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* FILTRE */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        .filter-bar .btn {
+            border-radius: 30px;
+        }
+        .filter-bar .btn.active-filter {
+            background: #8a7a66;
+            color: white;
+            border-color: #6d5f4e;
+        }
+        .filter-bar .badge-count {
+            background: #d6cbbc;
+            border-radius: 30px;
+            padding: 0.1rem 0.7rem;
+            font-size: 0.75rem;
+            color: #3d4d47;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding: 0.8rem 1.2rem;
+            background: #f7f2e7;
+            border-radius: 16px;
+            border: 1px solid #e5dccc;
+        }
+        .stats-bar span {
+            font-size: 0.9rem;
+            color: #3a4a4f;
+        }
+        .stats-bar strong {
+            color: #2b3f3f;
+        }
+
+        /* GRILLE SITES */
+        .site-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .site-card {
+            background: #fcf9f2;
+            border-radius: 20px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            overflow: hidden;
+            border: 1px solid #e5dccc;
+            transition: 0.15s;
+            display: flex;
+            flex-direction: column;
+        }
+        .site-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+            transform: translateY(-3px);
+        }
+        .card-header {
+            padding: 0.8rem 1rem 0.2rem 1rem;
+            background: #f7f2e7;
+            border-bottom: 1px dashed #d6cbbc;
+        }
+        .card-header .cat-badge {
+            display: inline-block;
+            background: #b9a68c;
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #2b3f3f;
+        }
+        .card-header .location {
+            font-size: 0.8rem;
+            color: #6f7e7a;
+        }
+        .photo-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 0.6rem 0.8rem;
+            background: #f3efe6;
+            border-bottom: 1px solid #e3d8c8;
+            justify-content: center;
+            min-height: 70px;
+        }
+        .photo-strip img {
+            width: calc(33.33% - 3px);
+            min-width: 50px;
+            flex: 1 0 auto;
+            height: 85px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #d8cdbb;
+            background: #dfd6c6;
+        }
+        .photo-strip .placeholder {
+            background: #d6cbbc;
+            color: #3d4d47;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            height: 85px;
+            flex: 1;
+            min-width: 40px;
+            border: 1px dashed #9b8975;
+        }
+        .card-body {
+            padding: 0.8rem 1rem 1rem;
+            flex: 1;
+        }
+        .card-body p {
+            line-height: 1.4;
+            color: #2e3d3b;
+            font-size: 0.85rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .card-actions .btn {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.8rem;
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .pagination .btn {
+            min-width: 40px;
+            justify-content: center;
+        }
+        .pagination .btn.active-page {
+            background: #8a7a66;
+            color: white;
+            border-color: #6d5f4e;
+        }
+
+        /* BASE DE DONNÉES */
+        .db-table-wrapper {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .db-table th {
+            background: #e3d8c8;
+            color: #2b3f3f;
+            padding: 0.7rem 0.8rem;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .db-table td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid #e5dccc;
+            vertical-align: middle;
+        }
+        .db-table tr:hover {
+            background: #f7f2e7;
+        }
+        .db-table .thumb-cell {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .db-table .thumb-cell img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #d8cdbb;
+        }
+        .db-table .thumb-cell .no-photo {
+            width: 40px;
+            height: 40px;
+            background: #d6cbbc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: #5d6d67;
+        }
+        .db-table .cat-tag {
+            display: inline-block;
+            background: #b9a68c;
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.1rem 0.6rem;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .db-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding: 0.8rem 1.2rem;
+            background: #f7f2e7;
+            border-radius: 16px;
+            border: 1px solid #e5dccc;
+        }
+        .db-stats span {
+            font-size: 0.9rem;
+            color: #3a4a4f;
+        }
+        .db-stats strong {
+            color: #2b3f3f;
+        }
+
+        /* FORMULAIRE */
+        .admin-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem 2rem;
+            max-width: 1000px;
+        }
+        .admin-form .full-width {
+            grid-column: 1 / -1;
+        }
+        .admin-form label {
+            font-weight: 500;
+            color: #3a4a4f;
+            display: block;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+        .admin-form input, .admin-form textarea, .admin-form select {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #d6cbbc;
+            background: #fcf9f2;
+            font-size: 0.9rem;
+            transition: 0.15s;
+        }
+        .admin-form input:focus, .admin-form textarea:focus, .admin-form select:focus {
+            outline: 2px solid #b9a68c;
+            border-color: transparent;
+        }
+        .admin-form textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+        .photo-upload-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .photo-upload-group .photo-url-input {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+        .photo-upload-group .photo-url-input input {
+            flex: 1;
+        }
+        .photo-upload-group .photo-url-input .btn {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+        }
+        .file-upload-area {
+            border: 2px dashed #cdbfab;
+            border-radius: 14px;
+            padding: 0.8rem;
+            text-align: center;
+            color: #5d6d67;
+            background: #f7f2e7;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .file-upload-area:hover {
+            background: #efe8db;
+            border-color: #8a7a66;
+        }
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* GOOGLE MAPS */
+        .map-container {
+            width: 100%;
+            height: 550px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #d6cbbc;
+            background: #d9d0c0;
+        }
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .map-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        .map-tools input {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            border: 1px solid #d6cbbc;
+            flex: 1;
+            min-width: 200px;
+            font-size: 0.9rem;
+        }
+        .map-tools select {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            border: 1px solid #d6cbbc;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #2b3f3f;
+            color: #f2efe6;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.3s;
+            z-index: 999;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem 1rem;
+            color: #6f7e7a;
+            font-size: 0.85rem;
+            border-top: 1px solid #e5dccc;
+            margin-top: 2rem;
+        }
+        .footer i {
+            color: #b9a68c;
+        }
+
+        @media (max-width: 700px) {
+            .admin-form { grid-template-columns: 1fr; }
+            .hero-text h1 { font-size: 2rem; }
+            .hero-stats { padding: 0.5rem 1rem; gap: 1rem; flex-wrap: wrap; }
+            .hero-stats .stat-item .number { font-size: 1.2rem; }
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.8rem; }
+            .site-grid { grid-template-columns: 1fr; }
+            .map-container { height: 350px; }
+            .db-table { font-size: 0.7rem; }
+            .db-table th, .db-table td { padding: 0.4rem 0.4rem; }
+            .db-table .thumb-cell img { width: 30px; height: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== BANNIÈRE ========== -->
+    <header class="hero-banner">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1><i class="fas fa-landmark"></i> ArchéoPlanète</h1>
+                <div class="subtitle">
+                    <span><i class="fas fa-globe-europe"></i> Gestion des sites antiques &amp; patrimoine mondial</span>
+                </div>
+            </div>
+            <div class="hero-stats" id="heroStats">
+                <div class="stat-item">
+                    <span class="number" id="heroCount">0</span>
+                    <span class="label">Sites</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number" id="heroEpochs">0</span>
+                    <span class="label">Époques</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number" id="heroPhotos">0</span>
+                    <span class="label">Photos</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i> Explorer
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- HEADER ACTIONS -->
+        <div class="header">
+            <div style="font-size:0.9rem;color:#6f7e7a;">
+                <i class="fas fa-database"></i> <span id="totalSitesLabel">0</span> sites enregistrés
+            </div>
+            <div class="header-actions">
+                <button class="btn" id="resetDataBtn"><i class="fas fa-undo-alt"></i> Réinitialiser</button>
+                <button class="btn btn-success" id="exportDataBtn"><i class="fas fa-download"></i> Exporter</button>
+                <button class="btn btn-primary" id="importDataBtn"><i class="fas fa-upload"></i> Importer</button>
+                <input type="file" id="importFileInput" accept=".json" style="display:none">
+            </div>
+        </div>
+
+        <!-- ONGLETS -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-sites"><i class="fas fa-list"></i> Sites</button>
+            <button class="tab-btn" data-tab="tab-database"><i class="fas fa-database"></i> Base de données</button>
+            <button class="tab-btn" data-tab="tab-admin"><i class="fas fa-pen-to-square"></i> Administration</button>
+            <button class="tab-btn" data-tab="tab-map"><i class="fas fa-map"></i> Carte</button>
+        </div>
+
+        <!-- TAB 1 : SITES -->
+        <div id="tab-sites" class="tab-content active">
+            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+                <h2 style="font-weight:300; color:#3a4a4f; font-size:1.4rem;"><i class="fas fa-archway"></i> Sites par époque</h2>
+                <button class="btn btn-primary" id="addSiteBtn"><i class="fas fa-plus"></i> Ajouter un site</button>
+            </div>
+            <div class="filter-bar" id="filterBar"></div>
+            <div class="stats-bar" id="statsBar"></div>
+            <div id="siteGrid" class="site-grid"></div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+
+        <!-- TAB 2 : BASE DE DONNÉES -->
+        <div id="tab-database" class="tab-content">
+            <h2 style="font-weight:300; color:#3a4a4f; font-size:1.4rem; margin-bottom:0.5rem;">
+                <i class="fas fa-database"></i> Base de données — tous les sites
+            </h2>
+            <div class="db-stats" id="dbStats"></div>
+            <div style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:1rem;">
+                <input type="text" id="dbSearch" placeholder="🔍 Rechercher un site..." style="padding:0.5rem 1rem; border-radius:30px; border:1px solid #d6cbbc; flex:1; min-width:200px;">
+                <select id="dbCategoryFilter" style="padding:0.5rem 1rem; border-radius:30px; border:1px solid #d6cbbc;">
+                    <option value="toutes">Toutes les catégories</option>
+                </select>
+                <button class="btn btn-primary" id="dbRefreshBtn"><i class="fas fa-sync-alt"></i> Rafraîchir</button>
+            </div>
+            <div class="db-table-wrapper">
+                <table class="db-table" id="dbTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Lieu</th>
+                            <th>Catégorie</th>
+                            <th>Photos</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dbTableBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:1rem; display:flex; gap:0.8rem; flex-wrap:wrap;">
+                <button class="btn btn-danger" id="dbDeleteAllBtn"><i class="fas fa-trash"></i> Supprimer tout</button>
+                <button class="btn btn-success" id="dbExportBtn"><i class="fas fa-download"></i> Exporter CSV</button>
+            </div>
+        </div>
+
+        <!-- TAB 3 : ADMIN -->
+        <div id="tab-admin" class="tab-content">
+            <h2 style="font-weight:300; color:#3a4a4f; margin-bottom:1rem; font-size:1.4rem;"><i class="fas fa-pencil"></i> Éditeur de site</h2>
+            <form id="adminForm" class="admin-form">
+                <input type="hidden" id="editId" value="">
+                <div class="full-width">
+                    <label for="editNom">Nom du site *</label>
+                    <input type="text" id="editNom" placeholder="Ex: Parthénon" required>
+                </div>
+                <div>
+                    <label for="editLieu">Lieu</label>
+                    <input type="text" id="editLieu" placeholder="Ex: Athènes, Grèce">
+                </div>
+                <div>
+                    <label for="editCategorie">Catégorie / Époque *</label>
+                    <select id="editCategorie" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="préhistorique">Préhistorique</option>
+                        <option value="antique-égyptienne">Antique égyptienne</option>
+                        <option value="antique-grecque">Antique grecque</option>
+                        <option value="antique-romaine">Antique romaine</option>
+                        <option value="antique-mésopotamienne">Antique mésopotamienne</option>
+                        <option value="antique-autres">Antique (autres)</option>
+                        <option value="médiéval">Médiéval</option>
+                        <option value="renaissance">Renaissance</option>
+                        <option value="moderne">Moderne (XVIIe-XIXe)</option>
+                        <option value="contemporain">Contemporain</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" placeholder="Description détaillée du site..."></textarea>
+                </div>
+                <div class="full-width">
+                    <label>Photos (jusqu'à 6) — URL ou upload depuis votre PC</label>
+                    <div id="photoInputs"></div>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt" style="font-size:1.4rem;"></i>
+                        <p>Cliquez ou glissez-déposez des images (JPG, PNG, WEBP)</p>
+                        <input type="file" id="fileInput" accept="image/*" multiple>
+                    </div>
+                    <small style="color:#6f7e7a;">Les fichiers sont convertis en Data URL (stockés dans la base).</small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                    <button type="button" class="btn" id="cancelEditBtn"><i class="fas fa-times"></i> Annuler</button>
+                    <button type="button" class="btn btn-danger" id="deleteSiteBtn"><i class="fas fa-trash"></i> Supprimer</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB 4 : CARTE (Google Maps) -->
+        <div id="tab-map" class="tab-content">
+            <h2 style="font-weight:300; color:#3a4a4f; margin-bottom:0.8rem; font-size:1.4rem;">
+                <i class="fas fa-map-marked-alt"></i> Localisation des sites
+            </h2>
+            <div class="map-tools">
+                <input type="text" id="mapSearch" placeholder="🔍 Rechercher un lieu (ex: Rome, Petra)..." 
+                       onkeydown="if(event.key==='Enter') searchMap()">
+                <select id="mapSiteSelect" onchange="goToSiteOnMap()">
+                    <option value="">— Aller à un site —</option>
+                </select>
+                <button class="btn btn-primary" onclick="searchMap()"><i class="fas fa-search"></i> Rechercher</button>
+                <button class="btn" onclick="resetMap()"><i class="fas fa-home"></i> Réinitialiser</button>
+            </div>
+            <div class="map-container">
+                <iframe id="mapFrame" 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1000000!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMHDCsDAwJzAwLjAiTiAwwrAwMCcwMC4wIkU!5e0!3m2!1sfr!2sfr!4v1700000000000" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <p style="margin-top:0.6rem; color:#5d6d67; font-size:0.85rem;">
+                <i class="fas fa-info-circle"></i> Utilisez la recherche pour localiser un site. Sélectionnez un site dans la liste pour y accéder directement.
+            </p>
+        </div>
+
+        <div class="footer">
+            <i class="fas fa-landmark"></i> ArchéoPlanète · Tous droits réservés · 
+            <span id="footerCount">0</span> sites répertoriés
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // =============================================================
+        //  BASE DE DONNÉES
+        // =============================================================
+        const DEFAULT_SITES = [
+            {
+                id: 1, nom: "Petra", lieu: "Jordanie",
+                categorie: "antique-autres",
+                description: "Cité nabatéenne creusée dans le rocher, célèbre pour le Khazneh.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Petra_Jordan_BW_21.jpg/640px-Petra_Jordan_BW_21.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Petra_%28Jordan%29.jpg/640px-Petra_%28Jordan%29.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Petra_Treasury_%28Jordan%29.jpg/640px-Petra_Treasury_%28Jordan%29.jpg"
+                ]
+            },
+            {
+                id: 2, nom: "Colisée", lieu: "Rome, Italie",
+                categorie: "antique-romaine",
+                description: "Amphithéâtre flavien, symbole de la Rome impériale.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/640px-Colosseo_2020.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Colosseum_in_Rome%2C_Italy_-_April_2007.jpg/640px-Colosseum_in_Rome%2C_Italy_-_April_2007.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Roman_Colosseum_with_moon.jpg/640px-Roman_Colosseum_with_moon.jpg"
+                ]
+            },
+            {
+                id: 3, nom: "Parthénon", lieu: "Athènes, Grèce",
+                categorie: "antique-grecque",
+                description: "Temple dédié à Athéna, chef-d'œuvre de l'architecture grecque classique.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Parthenon_from_west.jpg/640px-Parthenon_from_west.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Parthenon_Athens.jpg/640px-Parthenon_Athens.jpg"
+                ]
+            },
+            {
+                id: 4, nom: "Stonehenge", lieu: "Wiltshire, Angleterre",
+                categorie: "préhistorique",
+                description: "Cercle mégalithique datant du Néolithique, monument astronomique.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Stonehenge_2007_007.jpg/640px-Stonehenge_2007_007.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Stonehenge_%28England%29.jpg/640px-Stonehenge_%28England%29.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Stonehenge_Sunrise.jpg/640px-Stonehenge_Sunrise.jpg"
+                ]
+            },
+            {
+                id: 5, nom: "Chichén Itzá", lieu: "Yucatán, Mexique",
+                categorie: "antique-autres",
+                description: "Cité maya dominée par la pyramide de Kukulcân.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chichen_Itza_3.jpg/640px-Chichen_Itza_3.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Chichen_Itza_%28Mexico%29.jpg/640px-Chichen_Itza_%28Mexico%29.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Chichen_Itza_Kukulkan.jpg/640px-Chichen_Itza_Kukulkan.jpg"
+                ]
+            },
+            {
+                id: 6, nom: "Cité de Carcassonne", lieu: "France",
+                categorie: "médiéval",
+                description: "Cité fortifiée médiévale, l'une des mieux conservées d'Europe.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Carcassonne_vue_g%C3%A9n%C3%A9rale.jpg/640px-Carcassonne_vue_g%C3%A9n%C3%A9rale.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Carcassonne_%28France%29.jpg/640px-Carcassonne_%28France%29.jpg"
+                ]
+            },
+            {
+                id: 7, nom: "Pyramides de Gizeh", lieu: "Égypte",
+                categorie: "antique-égyptienne",
+                description: "Nécropole royale avec les grandes pyramides de Khéops, Khéphren et Mykérinos.",
+                photos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/All_Gizah_Pyramids.jpg/640px-All_Gizah_Pyramids.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Pyramids_of_Giza_2008.jpg/640px-Pyramids_of_Giza_2008.jpg"
+                ]
+            }
+        ];
+
+        const CATEGORY_LABELS = {
+            'préhistorique': 'Préhistorique',
+            'antique-égyptienne': 'Antique égyptienne',
+            'antique-grecque': 'Antique grecque',
+            'antique-romaine': 'Antique romaine',
+            'antique-mésopotamienne': 'Antique mésopotamienne',
+            'antique-autres': 'Antique (autres)',
+            'médiéval': 'Médiéval',
+            'renaissance': 'Renaissance',
+            'moderne': 'Moderne (XVIIe-XIXe)',
+            'contemporain': 'Contemporain'
+        };
+
+        let sites = [];
+        let nextId = 8;
+        let editingId = null;
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 6;
+        let currentFilter = 'toutes';
+
+        // =============================================================
+        //  CHARGEMENT / SAUVEGARDE
+        // =============================================================
+        function loadData() {
+            const stored = localStorage.getItem('archaeo_sites_v2');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length) {
+                        sites = parsed;
+                        let max = 0;
+                        parsed.forEach(s => { if (s.id > max) max = s.id; });
+                        nextId = max + 1;
+                        return;
+                    }
+                } catch(e) {}
+            }
+            sites = JSON.parse(JSON.stringify(DEFAULT_SITES));
+            nextId = 8;
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem('archaeo_sites_v2', JSON.stringify(sites));
+            updateHeroStats();
+            document.getElementById('totalSitesLabel').textContent = sites.length;
+            document.getElementById('footerCount').textContent = sites.length;
+        }
+
+        function resetData() {
+            if (confirm('Réinitialiser tous les sites ?')) {
+                sites = JSON.parse(JSON.stringify(DEFAULT_SITES));
+                nextId = 8;
+                saveData();
+                currentFilter = 'toutes';
+                currentPage = 1;
+                renderAll();
+                showToast('Données réinitialisées');
+            }
+        }
+
+        // =============================================================
+        //  STATS BANNIÈRE
+        // =============================================================
+        function updateHeroStats() {
+            const epochs = new Set(sites.map(s => s.categorie || 'non-classé'));
+            const totalPhotos = sites.reduce((acc, s) => acc + (s.photos ? s.photos.length : 0), 0);
+            document.getElementById('heroCount').textContent = sites.length;
+            document.getElementById('heroEpochs').textContent = epochs.size;
+            document.getElementById('heroPhotos').textContent = totalPhotos;
+        }
+
+        // =============================================================
+        //  RENDU PRINCIPAL
+        // =============================================================
+        function renderAll() {
+            renderFilterBar();
+            renderStats();
+            renderSiteGrid();
+            renderPagination();
+            renderPhotoInputs();
+            renderDatabase();
+            populateMapSelect();
+            updateHeroStats();
+            document.getElementById('totalSitesLabel').textContent = sites.length;
+            document.getElementById('footerCount').textContent = sites.length;
+        }
+
+        // =============================================================
+        //  FILTRE
+        // =============================================================
+        function renderFilterBar() {
+            const bar = document.getElementById('filterBar');
+            if (!bar) return;
+            const counts = {};
+            sites.forEach(s => {
+                const cat = s.categorie || 'non-classé';
+                counts[cat] = (counts[cat] || 0) + 1;
+            });
+
+            let html = `<button class="btn ${currentFilter === 'toutes' ? 'active-filter' : ''}" data-filter="toutes">Toutes <span class="badge-count">${sites.length}</span></button>`;
+            for (const [key, label] of Object.entries(CATEGORY_LABELS)) {
+                const count = counts[key] || 0;
+                if (count > 0) {
+                    html += `<button class="btn ${currentFilter === key ? 'active-filter' : ''}" data-filter="${key}">${label} <span class="badge-count">${count}</span></button>`;
+                }
+            }
+            bar.innerHTML = html;
+            bar.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentFilter = this.dataset.filter;
+                    currentPage = 1;
+                    renderAll();
+                });
+            });
+        }
+
+        // =============================================================
+        //  STATS
+        // =============================================================
+        function renderStats() {
+            const el = document.getElementById('statsBar');
+            if (!el) return;
+            const total = sites.length;
+            const categories = new Set(sites.map(s => s.categorie || 'non-classé'));
+            const totalPhotos = sites.reduce((acc, s) => acc + (s.photos ? s.photos.length : 0), 0);
+            el.innerHTML = `
+                <span><strong>${total}</strong> sites</span>
+                <span><strong>${categories.size}</strong> époques</span>
+                <span><strong>${totalPhotos}</strong> photos</span>
+                <span style="margin-left:auto;font-size:0.8rem;color:#6f7e7a;">
+                    <i class="fas fa-info-circle"></i> ${currentFilter === 'toutes' ? 'Toutes les époques' : CATEGORY_LABELS[currentFilter] || currentFilter}
+                </span>
+            `;
+        }
+
+        // =============================================================
+        //  GRILLE SITES
+        // =============================================================
+        function getFilteredSites() {
+            if (currentFilter === 'toutes') return sites;
+            return sites.filter(s => (s.categorie || 'non-classé') === currentFilter);
+        }
+
+        function renderSiteGrid() {
+            const grid = document.getElementById('siteGrid');
+            if (!grid) return;
+            const filtered = getFilteredSites();
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+
+            if (pageItems.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:#6f7e7a;">Aucun site dans cette catégorie.</div>`;
+                return;
+            }
+
+            let html = '';
+            pageItems.forEach(site => {
+                const photos = site.photos || [];
+                const catLabel = CATEGORY_LABELS[site.categorie] || site.categorie || 'Non classé';
+                let photoHtml = '';
+                const maxPhotos = Math.min(photos.length, 6);
+                for (let i = 0; i < 6; i++) {
+                    if (i < maxPhotos && photos[i] && photos[i].trim() !== '') {
+                        photoHtml += `<img src="${photos[i].trim()}" alt="${site.nom}" loading="lazy">`;
+                    } else {
+                        photoHtml += `<div class="placeholder">📷</div>`;
+                    }
+                }
+                html += `
+                    <div class="site-card">
+                        <div class="card-header">
+                            <span class="cat-badge">${catLabel}</span>
+                            <h3>${site.nom}</h3>
+                            <div class="location">📍 ${site.lieu || 'Lieu inconnu'}</div>
+                        </div>
+                        <div class="photo-strip">${photoHtml}</div>
+                        <div class="card-body">
+                            <p>${site.description || 'Site antique emblématique.'}</p>
+                            <div class="card-actions">
+                                <button class="btn btn-sm" onclick="editSite(${site.id})"><i class="fas fa-edit"></i> Modifier</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteSiteById(${site.id})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // =============================================================
+        //  PAGINATION
+        // =============================================================
+        function renderPagination() {
+            const el = document.getElementById('pagination');
+            if (!el) return;
+            const filtered = getFilteredSites();
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+            let html = '';
+            html += `<button class="btn ${currentPage <= 1 ? 'btn-outline' : ''}" onclick="goToPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="btn ${i === currentPage ? 'active-page' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            html += `<button class="btn ${currentPage >= totalPages ? 'btn-outline' : ''}" onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+            el.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const filtered = getFilteredSites();
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderSiteGrid();
+            renderPagination();
+            document.getElementById('tab-sites').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // =============================================================
+        //  BASE DE DONNÉES
+        // =============================================================
+        function renderDatabase() {
+            const tbody = document.getElementById('dbTableBody');
+            const stats = document.getElementById('dbStats');
+            if (!tbody) return;
+
+            const search = (document.getElementById('dbSearch')?.value || '').toLowerCase();
+            const catFilter = document.getElementById('dbCategoryFilter')?.value || 'toutes';
+
+            let filtered = sites;
+            if (search) {
+                filtered = filtered.filter(s => s.nom.toLowerCase().includes(search) || 
+                                               (s.lieu && s.lieu.toLowerCase().includes(search)));
+            }
+            if (catFilter !== 'toutes') {
+                filtered = filtered.filter(s => (s.categorie || 'non-classé') === catFilter);
+            }
+
+            if (stats) {
+                const totalPhotos = filtered.reduce((acc, s) => acc + (s.photos ? s.photos.length : 0), 0);
+                stats.innerHTML = `
+                    <span><strong>${filtered.length}</strong> sites affichés</span>
+                    <span><strong>${totalPhotos}</strong> photos au total</span>
+                    <span><strong>${sites.length}</strong> sites dans la base</span>
+                `;
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#6f7e7a;">Aucun site trouvé</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(site => {
+                const catLabel = CATEGORY_LABELS[site.categorie] || site.categorie || 'Non classé';
+                const photos = site.photos || [];
+                let thumbHtml = '';
+                if (photos.length === 0) {
+                    thumbHtml = `<div class="no-photo">0</div>`;
+                } else {
+                    const show = Math.min(photos.length, 3);
+                    for (let i = 0; i < show; i++) {
+                        if (photos[i]) {
+                            thumbHtml += `<img src="${photos[i]}" alt="">`;
+                        }
+                    }
+                    if (photos.length > 3) {
+                        thumbHtml += `<div class="no-photo">+${photos.length - 3}</div>`;
+                    }
+                }
+                html += `
+                    <tr>
+                        <td>${site.id}</td>
+                        <td><strong>${site.nom}</strong></td>
+                        <td>${site.lieu || '-'}</td>
+                        <td><span class="cat-tag">${catLabel}</span></td>
+                        <td><div class="thumb-cell">${thumbHtml}</div></td>
+                        <td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${site.description || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm" onclick="editSite(${site.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteSiteById(${site.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        document.getElementById('dbSearch')?.addEventListener('input', renderDatabase);
+        document.getElementById('dbCategoryFilter')?.addEventListener('change', renderDatabase);
+        document.getElementById('dbRefreshBtn')?.addEventListener('click', renderDatabase);
+
+        document.getElementById('dbDeleteAllBtn')?.addEventListener('click', function() {
+            if (confirm('⚠️ Supprimer TOUS les sites définitivement ?')) {
+                sites = [];
+                saveData();
+                renderAll();
+                showToast('Tous les sites ont été supprimés');
+            }
+        });
+
+        document.getElementById('dbExportBtn')?.addEventListener('click', function() {
+            let csv = 'ID,Nom,Lieu,Catégorie,Description,Nombre de photos\n';
+            sites.forEach(s => {
+                const cat = CATEGORY_LABELS[s.categorie] || s.categorie || 'Non classé';
+                const desc = (s.description || '').replace(/,/g, ';').replace(/\n/g, ' ');
+                const nbPhotos = (s.photos || []).length;
+                csv += `${s.id},"${s.nom}","${s.lieu || ''}","${cat}","${desc}",${nbPhotos}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sites_antiques.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Export CSV effectué');
+        });
+
+        function populateDbCategoryFilter() {
+            const select = document.getElementById('dbCategoryFilter');
+            if (!select) return;
+            const cats = new Set();
+            sites.forEach(s => cats.add(s.categorie || 'non-classé'));
+            let html = '<option value="toutes">Toutes les catégories</option>';
+            for (const cat of cats) {
+                const label = CATEGORY_LABELS[cat] || cat;
+                html += `<option value="${cat}">${label}</option>`;
+            }
+            select.innerHTML = html;
+        }
+
+        // =============================================================
+        //  PHOTO INPUTS
+        // =============================================================
+        function renderPhotoInputs() {
+            const container = document.getElementById('photoInputs');
+            if (!container) return;
+            let currentPhotos = [];
+            if (editingId !== null) {
+                const site = sites.find(s => s.id === editingId);
+                if (site) currentPhotos = site.photos || [];
+            }
+            let html = '';
+            for (let i = 0; i < 6; i++) {
+                const val = currentPhotos[i] || '';
+                html += `
+                    <div class="photo-upload-group" style="margin-bottom:0.3rem;">
+                        <div class="photo-url-input">
+                            <input type="text" id="photoUrl${i}" placeholder="URL de la photo ${i+1}" value="${val}">
+                            <button type="button" class="btn btn-sm" onclick="clearPhoto(${i})"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function clearPhoto(index) {
+            const input = document.getElementById(`photoUrl${index}`);
+            if (input) input.value = '';
+        }
+
+        // =============================================================
+        //  ÉDITION
+        // =============================================================
+        function editSite(id) {
+            const site = sites.find(s => s.id === id);
+            if (!site) return;
+            editingId = id;
+            document.getElementById('editId').value = id;
+            document.getElementById('editNom').value = site.nom || '';
+            document.getElementById('editLieu').value = site.lieu || '';
+            document.getElementById('editCategorie').value = site.categorie || '';
+            document.getElementById('editDescription').value = site.description || '';
+            renderPhotoInputs();
+            switchTab('tab-admin');
+            showToast('Édition : ' + site.nom);
+        }
+
+        function deleteSiteById(id) {
+            if (confirm('Supprimer ce site définitivement ?')) {
+                sites = sites.filter(s => s.id !== id);
+                saveData();
+                if (editingId === id) {
+                    editingId = null;
+                    document.getElementById('editId').value = '';
+                    document.getElementById('editNom').value = '';
+                    document.getElementById('editLieu').value = '';
+                    document.getElementById('editCategorie').value = '';
+                    document.getElementById('editDescription').value = '';
+                    renderPhotoInputs();
+                }
+                renderAll();
+                showToast('Site supprimé');
+            }
+        }
+
+        // =============================================================
+        //  FORMULAIRE
+        // =============================================================
+        document.getElementById('adminForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editId').value) || null;
+            const nom = document.getElementById('editNom').value.trim();
+            const lieu = document.getElementById('editLieu').value.trim();
+            const categorie = document.getElementById('editCategorie').value;
+            const description = document.getElementById('editDescription').value.trim();
+
+            if (!nom) { showToast('Le nom est requis'); return; }
+            if (!categorie) { showToast('La catégorie/époque est requise'); return; }
+
+            const photos = [];
+            for (let i = 0; i < 6; i++) {
+                const val = document.getElementById(`photoUrl${i}`).value.trim();
+                if (val) photos.push(val);
+            }
+
+            if (id) {
+                const index = sites.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    sites[index] = { ...sites[index], nom, lieu, categorie, description, photos };
+                }
+                showToast('Site mis à jour');
+            } else {
+                sites.push({ id: nextId++, nom, lieu, categorie, description, photos });
+                showToast('Site ajouté');
+            }
+            saveData();
+            editingId = null;
+            document.getElementById('editId').value = '';
+            document.getElementById('editNom').value = '';
+            document.getElementById('editLieu').value = '';
+            document.getElementById('editCategorie').value = '';
+            document.getElementById('editDescription').value = '';
+            renderPhotoInputs();
+            renderAll();
+            switchTab('tab-sites');
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', function() {
+            editingId = null;
+            document.getElementById('editId').value = '';
+            document.getElementById('editNom').value = '';
+            document.getElementById('editLieu').value = '';
+            document.getElementById('editCategorie').value = '';
+            document.getElementById('editDescription').value = '';
+            renderPhotoInputs();
+            switchTab('tab-sites');
+            showToast('Édition annulée');
+        });
+
+        document.getElementById('deleteSiteBtn').addEventListener('click', function() {
+            const id = parseInt(document.getElementById('editId').value);
+            if (id) {
+                deleteSiteById(id);
+                document.getElementById('editId').value = '';
+                document.getElementById('editNom').value = '';
+                document.getElementById('editLieu').value = '';
+                document.getElementById('editCategorie').value = '';
+                document.getElementById('editDescription').value = '';
+                editingId = null;
+                renderPhotoInputs();
+            } else {
+                showToast('Aucun site sélectionné');
+            }
+        });
+
+        document.getElementById('addSiteBtn').addEventListener('click', function() {
+            editingId = null;
+            document.getElementById('editId').value = '';
+            document.getElementById('editNom').value = '';
+            document.getElementById('editLieu').value = '';
+            document.getElementById('editCategorie').value = '';
+            document.getElementById('editDescription').value = '';
+            renderPhotoInputs();
+            switchTab('tab-admin');
+            showToast('Ajout d\'un nouveau site');
+        });
+
+        // =============================================================
+        //  UPLOAD
+        // =============================================================
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            const inputs = [];
+            for (let i = 0; i < 6; i++) {
+                inputs.push(document.getElementById(`photoUrl${i}`));
+            }
+            let index = 0;
+            for (let file of files) {
+                if (index >= 6) break;
+                if (!file.type.startsWith('image/')) continue;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const dataUrl = ev.target.result;
+                    for (let j = 0; j < inputs.length; j++) {
+                        if (inputs[j] && inputs[j].value === '') {
+                            inputs[j].value = dataUrl;
+                            break;
+                        }
+                    }
+                    showToast('Image chargée');
+                };
+                reader.readAsDataURL(file);
+                index++;
+            }
+            e.target.value = '';
+        });
+
+        const uploadArea = document.getElementById('fileUploadArea');
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = '#8a7a66'; });
+        uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = '#cdbfab'; });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#cdbfab';
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                document.getElementById('fileInput').files = files;
+                document.getElementById('fileInput').dispatchEvent(new Event('change'));
+            }
+        });
+        uploadArea.addEventListener('click', () => document.getElementById('fileInput').click());
+
+        // =============================================================
+        //  CARTE (Google Maps)
+        // =============================================================
+        function searchMap() {
+            const query = document.getElementById('mapSearch').value.trim();
+            if (!query) return;
+            const frame = document.getElementById('mapFrame');
+            frame.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&center=${encodeURIComponent(query)}&zoom=12`;
+            showToast('Recherche : ' + query);
+        }
+
+        function resetMap() {
+            document.getElementById('mapFrame').src = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1000000!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMHDCsDAwJzAwLjAiTiAwwrAwMCcwMC4wIkU!5e0!3m2!1sfr!2sfr!4v1700000000000';
+            document.getElementById('mapSearch').value = '';
+            showToast('Carte réinitialisée');
+        }
+
+        function populateMapSelect() {
+            const select = document.getElementById('mapSiteSelect');
+            if (!select) return;
+            let html = '<option value="">— Aller à un site —</option>';
+            sites.forEach(s => {
+                html += `<option value="${s.nom}, ${s.lieu || ''}">${s.nom} (${s.lieu || 'Lieu inconnu'})</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function goToSiteOnMap() {
+            const select = document.getElementById('mapSiteSelect');
+            const value = select.value;
+            if (!value) return;
+            const frame = document.getElementById('mapFrame');
+            frame.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(value)}&center=${encodeURIComponent(value)}&zoom=14`;
+            showToast('Localisation : ' + value);
+        }
+
+        // =============================================================
+        //  ONGLETS
+        // =============================================================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            if (tabId === 'tab-database') {
+                populateDbCategoryFilter();
+                renderDatabase();
+            }
+            if (tabId === 'tab-map') {
+                populateMapSelect();
+            }
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                switchTab(this.dataset.tab);
+            });
+        });
+
+        // =============================================================
+        //  EXPORT / IMPORT
+        // =============================================================
+        document.getElementById('exportDataBtn').addEventListener('click', function() {
+            const data = JSON.stringify(sites, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sites_antiques_categories.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Export JSON effectué');
+        });
+
+        document.getElementById('importDataBtn').addEventListener('click', function() {
+            document.getElementById('importFileInput').click();
+        });
+
+        document.getElementById('importFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (Array.isArray(data) && data.length) {
+                        if (confirm('Importer ces données ? (remplace la base actuelle)')) {
+                            sites = data;
+                            let max = 0;
+                            data.forEach(s => { if (s.id > max) max = s.id; });
+                            nextId = max + 1;
+                            saveData();
+                            currentFilter = 'toutes';
+                            currentPage = 1;
+                            renderAll();
+                            showToast('Import réussi (' + data.length + ' sites)');
+                        }
+                    } else {
+                        showToast('Fichier invalide');
+                    }
+                } catch(err) {
+                    showToast('Erreur de lecture JSON');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        document.getElementById('resetDataBtn').addEventListener('click', resetData);
+
+        // =============================================================
+        //  TOAST
+        // =============================================================
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(el._timeout);
+            el._timeout = setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // =============================================================
+        //  INIT
+        // =============================================================
+        loadData();
+        renderAll();
+        populateDbCategoryFilter();
+        populateMapSelect();
+        updateHeroStats();
+        document.getElementById('totalSitesLabel').textContent = sites.length;
+        document.getElementById('footerCount').textContent = sites.length;
+    </script>
+</body>
+</html>
